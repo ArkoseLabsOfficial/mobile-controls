@@ -1,106 +1,9 @@
-# Mobile Controls
-
----
-
-a library made to make the process of adding a mobile controls way easier.
-
----
-
-- [Setup](docs/SETUP.md)
-- [Features](docs/FEATURES.md)
-- [Usage](#usage)
-
----
-
-# USAGE
-
-Creating & Handling a mobile controls should be fairly easy and very much self-explanatory
-
-- NOTE: MobilePad & Hitbox Using the same base, so their handling is almost same
-
-```haxe
-// *
-// * src/Main.hx
-// *
-
-import mobile.MobileConfig;
-
-class Main {
-	static function main():Void {
-		MobileConfig.init('MobileControls', 'ArkoseLabs/HaxeTale', 'mobile/',
-			[
-				'MobilePad/DPadModes',
-				'MobilePad/ActionModes',
-				'Hitbox/HitboxModes',
-			], [
-				DPAD,
-				ACTION,
-				HITBOX
-			]
-		);
-	}
-}
-
-// *
-// * src/PlayState.hx
-// *
-
-import mobile.MobilePad;
-import mobile.JoyStick;
-import mobile.Hitbox;
-
-class PlayState extends FlxState {
-	public var mobilePad:MobilePad;
-	public var joyStick:JoyStick;
-	public var hitbox:Hitbox;
-	override function create() {
-		// MobilePad
-		mobilePad = new MobilePad('Test', 'Test');
-		var mobilePadCam:FlxCamera = new FlxCamera();
-		mobilePadCam.bgColor.alpha = 0;
-		FlxG.cameras.add(mobilePadCam, false);
-		mobilePad.buttonCameras = [mobilePadCam];
-		add(mobilePad);
-
-		// Hitbox
-		hitbox = new Hitbox('Test');
-		var hitboxCam = new FlxCamera();
-		hitboxCam.bgColor.alpha = 0;
-		FlxG.cameras.add(hitboxCam, false);
-		hitbox.buttonCameras = [hitboxCam];
-		add(hitbox);
-
-		// JoyStick
-		joyStick = new JoyStick(0, 0, 0, 0.25, 0.7); //Params: x, y, radius, ease, size
-		var joyStickCam = new FlxCamera();
-		joyStickCam.bgColor.alpha = 0;
-		FlxG.cameras.add(joyStickCam, false);
-		joyStick.cameras = [joyStickCam];
-		add(joyStick);
-	}
-	override function update(elapsed:Float) {
-		if (mobilePad.getButtonFromName('buttonA').justPressed) {
-			trace('hello from buttonA');
-		}
-
-		if (hitbox.getButtonFromName('buttonUp').justPressed) {
-			trace('hello from buttonUp');
-		}
-
-		if (joyStick.joyStickPressed('up')) {
-			trace('hello from joyStick up');
-		}
-	}
-}
-
-// *
-// * src/Controls.hx
-// *
+package;
 
 import flixel.FlxG;
 
 class Controls {
-	public var requestedInstance(get, default):Dynamic;
+	// walk shitttts
 	public var LEFT:Bool = false;
 	public var RIGHT:Bool = false;
 	public var UP:Bool = false;
@@ -113,6 +16,9 @@ class Controls {
 	public var RIGHT_R:Bool = false;
 	public var UP_R:Bool = false;
 	public var DOWN_R:Bool = false;
+
+	public function new() {}
+
 	public static var mobileBinds:Map<String, Array<String>> = [
 		'up'			=> ['buttonUp'],
 		'left'			=> ['buttonLeft'],
@@ -120,7 +26,6 @@ class Controls {
 		'right'			=> ['buttonRight']
 	];
 
-	public function new() {}
 	public function initInput() {
 		LEFT = justPressed('left');
 		RIGHT = justPressed('right');
@@ -135,50 +40,80 @@ class Controls {
 		UP_R = released('up');
 		DOWN_R = released('down');
 	}
+
 	public function justPressed(keyName:String) {
-		return mobilePadJustPressed(mobileBinds[keyName]) || joyStickJustPressed(keyName);
+		return justPressedKeys(mobilePadJustPressed(mobileBinds[keyName]) || joyStickJustPressed(keyName);
 	}
+
 	public function pressed(keyName:String) {
 		return mobilePadPressed(mobileBinds[keyName]) || joyStickPressed(keyName);
 	}
+	
 	public function released(keyName:String) {
 		return mobilePadJustReleased(mobileBinds[keyName]) || joyStickJustReleased(keyName);
 	}
+	
+	// KEYS
+	public function justPressedKeys(keyses:Array<FlxKey>) {
+		return FlxG.keys.anyJustPressed(keyses);
+	}
+
+	public function pressedKeys(keyses:Array<FlxKey>) {
+		return FlxG.keys.anyPressed(keyses);
+	}
+
+	public function releasedKeys(keyses:Array<FlxKey>) {
+		return FlxG.keys.anyJustReleased(keyses);
+	}
+
+	public var requestedInstance(get, default):Dynamic;
+	public var mobileControls(get, never):Bool;
+
 	private function joyStickPressed(key:String):Bool
 	{
 		if (key != null && requestedInstance.joyStick != null)
 			if (requestedInstance.joyStick.joyStickPressed(key) == true)
 				return true;
+
 		return false;
 	}
+
 	private function joyStickJustPressed(key:String):Bool
 	{
 		if (key != null && requestedInstance.joyStick != null)
 			if (requestedInstance.joyStick.joyStickJustPressed(key) == true)
 				return true;
+
 		return false;
 	}
+
 	private function joyStickJustReleased(key:String):Bool
 	{
 		if (key != null && requestedInstance.joyStick != null)
 			if (requestedInstance.joyStick.joyStickJustReleased(key) == true)
 				return true;
+
 		return false;
 	}
+
 	private function mobilePadPressed(keys:Array<String>):Bool
 	{
 		if (keys != null && requestedInstance.mobilePad != null)
 			if (requestedInstance.mobilePad.buttonPressed(keys) == true)
 				return true;
+
 		return false;
 	}
+
 	private function mobilePadJustPressed(keys:Array<String>):Bool
 	{
 		if (keys != null && requestedInstance.mobilePad != null)
 			if (requestedInstance.mobilePad.buttonJustPressed(keys) == true)
 				return true;
+
 		return false;
 	}
+
 	private function mobilePadJustReleased(keys:Array<String>):Bool
 	{
 		if (keys != null && requestedInstance.mobilePad != null)
@@ -187,11 +122,10 @@ class Controls {
 
 		return false;
 	}
+
 	@:noCompletion
 	private function get_requestedInstance():Dynamic
 	{
 		return PlayState.instance;
 	}
 }
-
-```

@@ -1,0 +1,19 @@
+{
+    "name": "mobile-controls",
+    "description": "a Mobile Control Library, built for simplicity.",
+    "license": "MIT",
+    "releasenote": "https://lib.haxe.org/p/mobile-controls/0.1.0/changelog",
+    "contributors": [
+        "KralOyuncu2010x"
+    ],
+    "version": "0.1.0",
+    "url": "https://github.com/KralOyuncu2010x/mobile-controls",
+    "classPath": "src",
+    "tags": [
+        "mobile",
+        "android",
+        "ios",
+        "game",
+        "flixel"
+    ]
+}
