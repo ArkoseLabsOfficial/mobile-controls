@@ -1,18 +1,14 @@
 # FEATURES
 
-- [x] String IDs
-- [x] MobilePad/VirtualPad
-- [x] Hitbox
-- [x] JoyStick
-- [x] TouchUtil
-- [x] SwipeUtil
-
 ---
 
-## TODO:
-
-- [ ] Improved JoyStick
-- [ ] GyroScope Support
-- [ ] Json x HScript Support
+- [x] **OpenFL Support**
+- [x] **DPad**
+- [x] **Button**
+- [x] **Hitbox**
+- [x] **JoyStick**
+- [x] **ScreenUtil**
+- - [x] TouchUtil
+- - [x] SwipeUtil
 
 ---

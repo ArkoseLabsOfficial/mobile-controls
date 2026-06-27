@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project>
+    <app title="MobileControls Test" file="MobileControlsTest" main="Main" version="1.0.0" company="Dev" />
+    <window width="1280" height="720" fps="60" background="#111111" hardware="true" vsync="false" />
+
+    <haxelib name="flixel" />
+    <haxelib name="openfl" />
+
+    <source name="../src" /> 
+
+    <source path="source" />
+    <assets path="../assets/mobile" rename="mobile" />
+
+    <haxedef name="lime_use_old_deltatime" />
+	<haxedef name="lime_disable_motion_sensors" />
+</project>

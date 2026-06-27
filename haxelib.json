@@ -1,19 +1,23 @@
 {
-    "name": "mobile-controls",
+    "name": "mobile-dev",
     "description": "a Mobile Control Library, built for simplicity.",
     "license": "MIT",
-    "releasenote": "https://lib.haxe.org/p/mobile-controls/0.1.0/changelog",
+    "releasenote": "First stable release - read changelog",
     "contributors": [
-        "KralOyuncu2010x"
+        "ArkoseLabs"
     ],
-    "version": "0.1.0",
-    "url": "https://github.com/KralOyuncu2010x/mobile-controls",
+    "version": "1.0.1",
+    "url": "https://github.com/ArkoseLabsOfficial/mobile-controls",
     "classPath": "src",
+    "dependencies": {
+        "openfl": ""
+    },
     "tags": [
         "mobile",
         "android",
         "ios",
         "game",
+        "openfl",
         "flixel"
     ]
 }

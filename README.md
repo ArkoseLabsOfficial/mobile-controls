@@ -6,192 +6,170 @@ a library made to make the process of adding a mobile controls way easier.
 
 ---
 
-- [Setup](docs/SETUP.md)
-- [Features](docs/FEATURES.md)
+- [Setup](https://github.com/ArkoseLabsOfficial/mobile-controls/blob/main/docs/SETUP.md)
+- [Features](https://github.com/ArkoseLabsOfficial/mobile-controls/blob/main/docs/FEATURES.md)
 - [Usage](#usage)
 
 ---
 
 # USAGE
 
-Creating & Handling a mobile controls should be fairly easy and very much self-explanatory
+Creating & Handling a mobile controls should be fairly easy and very much self-explanatory. since everything is driven by JSON now, you just need to tell it which file to load
 
-- NOTE: MobilePad & Hitbox Using the same base, so their handling is almost same
+- NOTE: Because the library now checks states dynamically across all inputs, handling DPads, Hitboxes, and Joysticks is basically exactly the same!
 
+HaxeFlixel Example:
+```haxe
+// *
+// * src/PlayState.hx
+// *
+
+import flixel.FlxState;
+import mobile.flixel.controls.MobileControls;
+
+class PlayState extends FlxState {
+    public static var instance:PlayState;
+    public var manager:MobileControls;
+
+    public function new() {
+        super();
+        instance = this;
+    }
+
+    override function create() {
+        super.create();
+
+        /* Manager Setup */
+        manager = new MobileControls();
+        add(manager);
+
+        /* DPad Setup */
+        manager.addDPad('my_dpad_data');
+        manager.addDPadCamera(); // optional, renders it on top of the game
+
+        /* Hitbox Setup */
+        manager.addHitbox('my_hitbox_data');
+        manager.addHitboxCamera();
+
+        /* JoyStick & Button Setup */
+        manager.addButton('my_button_data');
+        manager.addJoyStick('my_joystick_data');
+        // manager.addJoyStickCamera();
+    }
+
+    override function update(elapsed:Float) {
+        super.update(elapsed);
+
+        // checking states is super easy now, it checks all active controls for the ID
+        if (manager.checkState('A', 'justPressed')) {
+            trace('hello from button A');
+        }
+
+        if (manager.checkState('up', 'pressed')) {
+            trace('hello from holding up (works on dpad, hitbox, OR joystick!)');
+        }
+        
+        if (manager.checkState('B', 'released')) {
+            trace('goodbye from button B');
+        }
+    }
+}
+```
+
+Pure OpenFL Example:
 ```haxe
 // *
 // * src/Main.hx
 // *
 
-import mobile.MobileConfig;
+import openfl.display.Sprite;
+import openfl.events.Event;
+import mobile.openfl.controls.MobileControls;
+import mobile.openfl.screen.ScreenUtil;
 
-class Main {
-	static function main():Void {
-		MobileConfig.init('MobileControls', 'ArkoseLabs/HaxeTale', 'mobile/',
-			[
-				'MobilePad/DPadModes',
-				'MobilePad/ActionModes',
-				'Hitbox/HitboxModes',
-			], [
-				DPAD,
-				ACTION,
-				HITBOX
-			]
-		);
-	}
+class Main extends Sprite {
+    public var manager:MobileControls;
+
+    public function new() {
+        super();
+        addEventListener(Event.ADDED_TO_STAGE, init);
+    }
+    
+    function init(e:Event) {
+        removeEventListener(Event.ADDED_TO_STAGE, init);
+        
+        // Init screen touch events first
+        ScreenUtil.init(stage);
+
+        /* Manager Setup (Pass in your design width & height for scaling) */
+        manager = new MobileControls(1280, 720);
+        addChild(manager);
+
+        /* Setup controls from JSON */
+        manager.addDPad('my_dpad_data');
+        manager.addHitbox('my_hitbox_data');
+        manager.addButton('my_button_data');
+        manager.addJoyStick('my_joystick_data');
+
+        addEventListener(Event.ENTER_FRAME, onUpdate);
+    }
+
+    function onUpdate(e:Event) {
+        // works exactly the same as the flixel version!
+        if (manager.checkState('A', 'justPressed')) {
+            trace('hello from button A');
+        }
+
+        if (manager.checkState('up', 'pressed')) {
+            trace('holding up!');
+        }
+    }
 }
+```
 
+Wrapper Example:
+
+Because of the new checkState function, making a custom wrapper for your game is much shorter than it used to be.
+```haxe
 // *
-// * src/PlayState.hx
-// *
-
-import mobile.MobilePad;
-import mobile.JoyStick;
-import mobile.Hitbox;
-
-class PlayState extends FlxState {
-	public var mobilePad:MobilePad;
-	public var joyStick:JoyStick;
-	public var hitbox:Hitbox;
-	override function create() {
-		// MobilePad
-		mobilePad = new MobilePad('Test', 'Test');
-		var mobilePadCam:FlxCamera = new FlxCamera();
-		mobilePadCam.bgColor.alpha = 0;
-		FlxG.cameras.add(mobilePadCam, false);
-		mobilePad.buttonCameras = [mobilePadCam];
-		add(mobilePad);
-
-		// Hitbox
-		hitbox = new Hitbox('Test');
-		var hitboxCam = new FlxCamera();
-		hitboxCam.bgColor.alpha = 0;
-		FlxG.cameras.add(hitboxCam, false);
-		hitbox.buttonCameras = [hitboxCam];
-		add(hitbox);
-
-		// JoyStick
-		joyStick = new JoyStick(0, 0, 0, 0.25, 0.7); //Params: x, y, radius, ease, size
-		var joyStickCam = new FlxCamera();
-		joyStickCam.bgColor.alpha = 0;
-		FlxG.cameras.add(joyStickCam, false);
-		joyStick.cameras = [joyStickCam];
-		add(joyStick);
-	}
-	override function update(elapsed:Float) {
-		if (mobilePad.getButtonFromName('buttonA').justPressed) {
-			trace('hello from buttonA');
-		}
-
-		if (hitbox.getButtonFromName('buttonUp').justPressed) {
-			trace('hello from buttonUp');
-		}
-
-		if (joyStick.joyStickPressed('up')) {
-			trace('hello from joyStick up');
-		}
-	}
-}
-
-// *
+// * An Example Controls Wrapper
 // * src/Controls.hx
 // *
 
-import flixel.FlxG;
-
 class Controls {
-	public var requestedInstance(get, default):Dynamic;
-	public var LEFT:Bool = false;
-	public var RIGHT:Bool = false;
-	public var UP:Bool = false;
-	public var DOWN:Bool = false;
-	public var LEFT_P:Bool = false;
-	public var RIGHT_P:Bool = false;
-	public var UP_P:Bool = false;
-	public var DOWN_P:Bool = false;
-	public var LEFT_R:Bool = false;
-	public var RIGHT_R:Bool = false;
-	public var UP_R:Bool = false;
-	public var DOWN_R:Bool = false;
-	public static var mobileBinds:Map<String, Array<String>> = [
-		'up'			=> ['buttonUp'],
-		'left'			=> ['buttonLeft'],
-		'down'			=> ['buttonDown'],
-		'right'			=> ['buttonRight']
-	];
+    public var LEFT(get, never):Bool;
+    public var RIGHT(get, never):Bool;
+    public var UP(get, never):Bool;
+    public var DOWN(get, never):Bool;
 
-	public function new() {}
-	public function initInput() {
-		LEFT = justPressed('left');
-		RIGHT = justPressed('right');
-		UP = justPressed('up');
-		DOWN = justPressed('down');
-		LEFT_P = pressed('left');
-		RIGHT_P = pressed('right');
-		UP_P = pressed('up');
-		DOWN_P = pressed('down');
-		LEFT_R = released('left');
-		RIGHT_R = released('right');
-		UP_R = released('up');
-		DOWN_R = released('down');
-	}
-	public function justPressed(keyName:String) {
-		return mobilePadJustPressed(mobileBinds[keyName]) || joyStickJustPressed(keyName);
-	}
-	public function pressed(keyName:String) {
-		return mobilePadPressed(mobileBinds[keyName]) || joyStickPressed(keyName);
-	}
-	public function released(keyName:String) {
-		return mobilePadJustReleased(mobileBinds[keyName]) || joyStickJustReleased(keyName);
-	}
-	private function joyStickPressed(key:String):Bool
-	{
-		if (key != null && requestedInstance.joyStick != null)
-			if (requestedInstance.joyStick.joyStickPressed(key) == true)
-				return true;
-		return false;
-	}
-	private function joyStickJustPressed(key:String):Bool
-	{
-		if (key != null && requestedInstance.joyStick != null)
-			if (requestedInstance.joyStick.joyStickJustPressed(key) == true)
-				return true;
-		return false;
-	}
-	private function joyStickJustReleased(key:String):Bool
-	{
-		if (key != null && requestedInstance.joyStick != null)
-			if (requestedInstance.joyStick.joyStickJustReleased(key) == true)
-				return true;
-		return false;
-	}
-	private function mobilePadPressed(keys:Array<String>):Bool
-	{
-		if (keys != null && requestedInstance.mobilePad != null)
-			if (requestedInstance.mobilePad.buttonPressed(keys) == true)
-				return true;
-		return false;
-	}
-	private function mobilePadJustPressed(keys:Array<String>):Bool
-	{
-		if (keys != null && requestedInstance.mobilePad != null)
-			if (requestedInstance.mobilePad.buttonJustPressed(keys) == true)
-				return true;
-		return false;
-	}
-	private function mobilePadJustReleased(keys:Array<String>):Bool
-	{
-		if (keys != null && requestedInstance.mobilePad != null)
-			if (requestedInstance.mobilePad.buttonJustReleased(keys) == true)
-				return true;
+    public function new() {}
 
-		return false;
-	}
-	@:noCompletion
-	private function get_requestedInstance():Dynamic
-	{
-		return PlayState.instance;
-	}
+    // the new checkState handles checking everything for you automatically!
+    public function get_LEFT() return justPressed('left');
+    public function get_RIGHT() return justPressed('right');
+    public function get_UP() return justPressed('up');
+    public function get_DOWN() return justPressed('down');
+
+    public function justPressed(keyName:String) {
+        return #if flixel requestedManager.checkState(keyName, 'justPressed') || #end Main.checkState(keyName, "justPressed");
+    }
+
+    public function pressed(keyName:String) {
+        return #if flixel requestedManager.checkState(keyName, 'pressed') || #end Main.checkState(keyName, "pressed");
+    }
+    
+    public function released(keyName:String) {
+        return #if flixel requestedManager.checkState(keyName, 'justReleased') || #end Main.checkState(keyName, "justReleased");
+    }
+
+	#if flixel
+    public var requestedManager(get, default):Dynamic;
+    @:noCompletion
+    private function get_requestedManager():Dynamic
+    {
+        // replace this with wherever you store your MobileControls instance
+        return PlayState.instance.manager;
+    }
+	#end
 }
-
 ```
