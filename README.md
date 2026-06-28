@@ -88,7 +88,7 @@ import mobile.openfl.controls.MobileControls;
 import mobile.openfl.screen.ScreenUtil;
 
 class Main extends Sprite {
-    public var manager:MobileControls;
+    public static var manager:MobileControls;
 
     public function new() {
         super();
@@ -151,15 +151,15 @@ class Controls {
     public function get_DOWN() return justPressed('down');
 
     public function justPressed(keyName:String) {
-        return #if flixel requestedManager.checkState(keyName, 'justPressed') || #end Main.checkState(keyName, "justPressed");
+        return #if flixel requestedManager.checkState(keyName, 'justPressed') || #end Main.manager.checkState(keyName, "justPressed");
     }
 
     public function pressed(keyName:String) {
-        return #if flixel requestedManager.checkState(keyName, 'pressed') || #end Main.checkState(keyName, "pressed");
+        return #if flixel requestedManager.checkState(keyName, 'pressed') || #end Main.manager.checkState(keyName, "pressed");
     }
     
     public function released(keyName:String) {
-        return #if flixel requestedManager.checkState(keyName, 'justReleased') || #end Main.checkState(keyName, "justReleased");
+        return #if flixel requestedManager.checkState(keyName, 'justReleased') || #end Main.manager.checkState(keyName, "justReleased");
     }
 
 	#if flixel

@@ -1,7 +1,7 @@
 
 # 2.0.0 (ReWrite)
 
-- **⚠︎ BREAKING CHANGE ⚠︎:** Entire Library has been rewritten, this version require to update mobile-control images and json files in your game to latest json type and images.
+- **⚠︎ BREAKING CHANGE ⚠︎:** The library has been rewritten for easier usage. Requires updating all asset images and JSON configuration files to the new format.
 - Added `OpenFL Support`.
 - `mobile_controls_allow_mouse_clicks` has been removed.
 - Added `DPad`.

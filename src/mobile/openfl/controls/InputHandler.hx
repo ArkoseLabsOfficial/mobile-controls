@@ -108,6 +108,10 @@ class InputHandler extends Sprite {
     public var showBounds:Bool = false;
     public var deadzones:Array<Sprite> = [];
 
+    public var subOffsetX:Float = 0;
+    public var subOffsetY:Float = 0;
+    public var subScale:Float = 1.0;
+
     public var baseGraphic:Bitmap;
     public var subGraphic:Bitmap;
     public var hitboxes:Array<Sprite> = [];
@@ -160,7 +164,7 @@ class InputHandler extends Sprite {
         }
 
         baseGraphic.scaleX = baseGraphic.scaleY = baseScale;
-        subGraphic.scaleX = subGraphic.scaleY = baseScale;
+        subGraphic.scaleX = subGraphic.scaleY = baseScale * subScale;
     }
 
     private function loadBitmap(bmp:Bitmap, name:String, sheet:String, path:String) {
@@ -196,8 +200,8 @@ class InputHandler extends Sprite {
             var sW = subGraphic.scrollRect != null ? subGraphic.scrollRect.width : subGraphic.bitmapData.width;
             var sH = subGraphic.scrollRect != null ? subGraphic.scrollRect.height : subGraphic.bitmapData.height;
 
-            subGraphic.x = ((bW * baseScale) - (sW * baseScale)) / 2;
-            subGraphic.y = ((bH * baseScale) - (sH * baseScale)) / 2;
+            subGraphic.x = ((bW * baseScale) - (sW * baseScale * subScale)) / 2 + subOffsetX;
+            subGraphic.y = ((bH * baseScale) - (sH * baseScale * subScale)) / 2 + subOffsetY;
         }
     }
 

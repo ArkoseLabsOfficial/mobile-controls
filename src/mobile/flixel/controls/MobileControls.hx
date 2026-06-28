@@ -43,8 +43,8 @@ class MobileControls extends FlxSpriteGroup {
 
     public function addButtonCamera() {
         var cam:FlxCamera = new FlxCamera();
-		cam.bgColor.alpha = 0;
-		FlxG.cameras.add(cam, false); 
+        cam.bgColor.alpha = 0;
+        FlxG.cameras.add(cam, false); 
         for (btn in buttons) {
             btn.cameras = [cam];
         }
@@ -52,8 +52,8 @@ class MobileControls extends FlxSpriteGroup {
 
     public function addDPadCamera() {
         var cam:FlxCamera = new FlxCamera();
-		cam.bgColor.alpha = 0;
-		FlxG.cameras.add(cam, false); 
+        cam.bgColor.alpha = 0;
+        FlxG.cameras.add(cam, false); 
         for (btn in dpads) {
             btn.cameras = [cam];
         }
@@ -61,8 +61,8 @@ class MobileControls extends FlxSpriteGroup {
 
     public function addJoyStickCamera() {
         var cam:FlxCamera = new FlxCamera();
-		cam.bgColor.alpha = 0;
-		FlxG.cameras.add(cam, false); 
+        cam.bgColor.alpha = 0;
+        FlxG.cameras.add(cam, false); 
         for (btn in joysticks) {
             btn.cameras = [cam];
         }
@@ -70,8 +70,8 @@ class MobileControls extends FlxSpriteGroup {
 
     public function addHitboxCamera() {
         var cam:FlxCamera = new FlxCamera();
-		cam.bgColor.alpha = 0;
-		FlxG.cameras.add(cam, false); 
+        cam.bgColor.alpha = 0;
+        FlxG.cameras.add(cam, false); 
         for (btn in hitboxes) {
             btn.cameras = [cam];
         }

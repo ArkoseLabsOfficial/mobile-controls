@@ -1,12 +1,12 @@
 {
-    "name": "mobile-dev",
-    "description": "a Mobile Control Library, built for simplicity.",
+    "name": "mobile-controls",
+    "description": "A Mobile Control Library, built for simplicity.",
     "license": "MIT",
-    "releasenote": "First stable release - read changelog",
+    "releasenote": "Major rewrite with OpenFL support.",
     "contributors": [
         "ArkoseLabs"
     ],
-    "version": "1.0.1",
+    "version": "2.0.0",
     "url": "https://github.com/ArkoseLabsOfficial/mobile-controls",
     "classPath": "src",
     "dependencies": {

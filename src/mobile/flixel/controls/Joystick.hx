@@ -17,7 +17,20 @@ class Joystick extends InputHandler {
         var scale:Float = data.scale != null ? data.scale : 1.0;
         maxRadius = (data.radius != null ? data.radius : maxRadius) * scale;
 
-        loadElementGraphics(data.graphic, data.subgraphic, data.spritesheet, Config.JOYSTICK_PATH, data.color, scale);
+        var tex:String = data.texture != null ? data.texture : data.graphic;
+        var subTex:String = null;
+        if (data.subgraphic != null) {
+            subTex = data.subgraphic.texture != null ? data.subgraphic.texture : data.subgraphic;
+            if (data.subgraphic.position != null) {
+                subOffsetX = data.subgraphic.position[0];
+                subOffsetY = data.subgraphic.position[1];
+            }
+            if (data.subgraphic.scale != null) {
+                subScale = data.subgraphic.scale;
+            }
+        }
+
+        loadElementGraphics(tex, subTex, data.spritesheet, Config.JOYSTICK_PATH, data.color, scale);
 
         var relMidX = baseGraphic.width / 2;
         var relMidY = baseGraphic.height / 2;
@@ -34,10 +47,13 @@ class Joystick extends InputHandler {
             touchZone = baseGraphic;
         }
 
-        if (data.clickposition != null && data.clickbound != null) {
+        var offsets = data.offset != null ? data.offset : data.clickposition;
+        var hitboxesD = data.hitbox != null ? data.hitbox : data.clickbound;
+
+        if (offsets != null && hitboxesD != null) {
             for (i in 0...controlIDs.length) {
-                var cPos:Array<Float> = data.clickposition[i];
-                var cBnd:Array<Int> = data.clickbound[i];
+                var cPos:Array<Float> = offsets[i];
+                var cBnd:Array<Int> = hitboxesD[i];
                 var relBoundX = relMidX + cPos[0] - (cBnd[0] / 2);
                 var relBoundY = relMidY + cPos[1] - (cBnd[1] / 2);
                 createBoundHitbox(relBoundX, relBoundY, cBnd[0], cBnd[1]);
@@ -142,8 +158,8 @@ class Joystick extends InputHandler {
                 dy = (dy / dist) * maxRadius;
             }
 
-            subGraphic.x = mid.x + dx - (subGraphic.width / 2);
-            subGraphic.y = mid.y + dy - (subGraphic.height / 2);
+            subGraphic.x = mid.x + dx - (subGraphic.width / 2) + subOffsetX;
+            subGraphic.y = mid.y + dy - (subGraphic.height / 2) + subOffsetY;
 
             var anyPressed = false;
             for (i in 0...hitboxes.length) {

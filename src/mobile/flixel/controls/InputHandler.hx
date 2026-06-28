@@ -10,6 +10,10 @@ class InputHandler extends FlxSpriteGroup {
     public var disableBright:Bool = false;
     public var showBounds:Bool = false;
 
+    public var subOffsetX:Float = 0;
+    public var subOffsetY:Float = 0;
+    public var subScale:Float = 1.0;
+
     public var deadzones:Array<FlxSprite> = [];
 
     public var baseGraphic:FlxSprite;
@@ -69,7 +73,7 @@ class InputHandler extends FlxSpriteGroup {
             subGraphic.visible = false;
 
         baseGraphic.scale.set(scaleVal, scaleVal);
-        subGraphic.scale.set(scaleVal, scaleVal);
+        subGraphic.scale.set(scaleVal * subScale, scaleVal * subScale);
         baseGraphic.updateHitbox();
         subGraphic.updateHitbox();
 
@@ -84,8 +88,8 @@ class InputHandler extends FlxSpriteGroup {
 
     public function centerSubGraphic() {
         if (subGraphic != null && baseGraphic != null && subGraphic.visible) {
-            subGraphic.x = baseGraphic.x + (baseGraphic.width - subGraphic.width) / 2;
-            subGraphic.y = baseGraphic.y + (baseGraphic.height - subGraphic.height) / 2;
+            subGraphic.x = baseGraphic.x + (baseGraphic.width - subGraphic.width) / 2 + subOffsetX;
+            subGraphic.y = baseGraphic.y + (baseGraphic.height - subGraphic.height) / 2 + subOffsetY;
         }
     }
 
