@@ -1,5 +1,3 @@
-package mobile.controls;
-
 /* Flixel*/
 #if flixel
 import flixel.FlxG;
@@ -21,6 +19,10 @@ import flixel.system.scaleModes.BaseScaleMode;
 /* Custom Storage System Used for handling FileSystem and Assets System Together. */
 import mobile.io.File;
 import mobile.io.FileSystem;
+
+/* Datas */
+import mobile.ControlsData;
+import mobile.Config;
 
 /* OpenFL */
 import openfl.display.Shape;

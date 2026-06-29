@@ -1,64 +1,65 @@
 package mobile.openfl.controls;
 
 class Hitbox extends InputHandler {
-    public var controlID:String;
+	public var controlID:String;
+	public var showAlpha:Float = 1;
 
-    public function new(data:Dynamic) {
-        var posX:Float = data.position != null ? data.position[0] : 0;
-        var posY:Float = data.position != null ? data.position[1] : 0;
-        super(posX, posY, false);
-        jsonName = data.name;
-        controlID = data.id;
+	public function new(data:ControlDef) {
+		var posX:Float = data.position != null ? data.position[0] : 0;
+		var posY:Float = data.position != null ? data.position[1] : 0;
+		super(posX, posY, false);
+		jsonName = data.name;
+		controlID = cast data.id;
 
-        var w:Int = data.scale != null ? Std.int(data.scale[0]) : 320;
-        var h:Int = data.scale != null ? Std.int(data.scale[1]) : 720;
-        var colorHex:Int = data.color != null ? Std.parseInt(data.color) : 0xFFFFFFFF;
+		var scaleArr:Array<Float> = data.scale != null ? cast data.scale : null;
+		var w:Int = scaleArr != null ? Std.int(scaleArr[0]) : 320;
+		var h:Int = scaleArr != null ? Std.int(scaleArr[1]) : 720;
+		var colorHex:Int = data.color != null ? Std.parseInt(data.color) : 0xFFFFFFFF;
 
-        baseGraphic.bitmapData = createHintGraphic(w, h, colorHex, false);
-        baseGraphic.alpha = 0.00001;
-        subGraphic.visible = false;
-    }
+		baseGraphic.bitmapData = createHintGraphic(w, h, colorHex, false);
+		baseGraphic.alpha = 0.00001;
+		subGraphic.visible = false;
+	}
 
-    private function createHintGraphic(Width:Int, Height:Int, Color:Int = 0xFFFFFF, ?isLane:Bool = false):BitmapData {
-        var shape:Shape = new Shape();
-        shape.graphics.beginFill(Color);
-        shape.graphics.lineStyle(3, Color, 1);
-        shape.graphics.drawRect(0, 0, Width, Height);
-        shape.graphics.lineStyle(0, 0, 0);
-        shape.graphics.drawRect(3, 3, Width - 6, Height - 6);
-        shape.graphics.endFill();
-        
-        if (isLane) {
-            shape.graphics.beginFill(Color);
-        } else {
-            var matrix = new Matrix();
-            matrix.createGradientBox(Width, Height, 0, 0, 0);
-            shape.graphics.beginGradientFill(GradientType.RADIAL, [Color, Color], [0.6, 0], [0, 255], matrix, openfl.display.SpreadMethod.PAD, openfl.display.InterpolationMethod.LINEAR_RGB, 0.5);
-        }
-        
-        shape.graphics.drawRect(3, 3, Width - 6, Height - 6);
-        shape.graphics.endFill();
+	private function createHintGraphic(Width:Int, Height:Int, Color:Int = 0xFFFFFF, ?isLane:Bool = false):BitmapData {
+		var shape:Shape = new Shape();
+		shape.graphics.beginFill(Color);
+		shape.graphics.lineStyle(3, Color, 1);
+		shape.graphics.drawRect(0, 0, Width, Height);
+		shape.graphics.lineStyle(0, 0, 0);
+		shape.graphics.drawRect(3, 3, Width - 6, Height - 6);
+		shape.graphics.endFill();
 
-        var bitmap:BitmapData = new BitmapData(Width, Height, true, 0);
-        bitmap.draw(shape);
-        return bitmap;
-    }
+		if (isLane) {
+			shape.graphics.beginFill(Color);
+		} else {
+			var matrix = new Matrix();
+			matrix.createGradientBox(Width, Height, 0, 0, 0);
+			shape.graphics.beginGradientFill(GradientType.RADIAL, [Color, Color], [0.6, 0], [0, 255], matrix, openfl.display.SpreadMethod.PAD,
+				openfl.display.InterpolationMethod.LINEAR_RGB, 0.5);
+		}
 
-    override public function updateInputs() {
-        if (disabled) return;
-        super.updateInputs();
-        disableBright = true;
+		shape.graphics.drawRect(3, 3, Width - 6, Height - 6);
+		shape.graphics.endFill();
 
-        var isHit = false;
-        if (checkOverlap(this)) {
-            isHit = true;
-        }
+		var bitmap:BitmapData = new BitmapData(Width, Height, true, 0);
+		bitmap.draw(shape);
+		return bitmap;
+	}
 
-        if (isHit) {
-            activeIDs.push(controlID);
-            baseGraphic.alpha = 0.6;
-        } else {
-            baseGraphic.alpha = 0.00001;
-        }
-    }
+	override public function updateInputs() {
+		if (disabled)
+			return;
+		super.updateInputs();
+		disableBright = true;
+
+		var isHit = checkOverlap(this);
+
+		if (isHit) {
+			activeIDs.push(controlID);
+			baseGraphic.alpha = showAlpha;
+		} else {
+			baseGraphic.alpha = 0.00001;
+		}
+	}
 }

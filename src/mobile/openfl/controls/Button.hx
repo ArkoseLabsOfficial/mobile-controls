@@ -1,39 +1,44 @@
 package mobile.openfl.controls;
 
 class Button extends InputHandler {
-    public var controlID:String;
+	public var controlID:String;
 
-    public function new(data:Dynamic) {
-        super(data.position != null ? data.position[0] : 0, data.position != null ? data.position[1] : 0, false);
-        jsonName = data.name;
-        controlID = data.id;
+	public function new(data:ControlDef) {
+		super(data.position != null ? data.position[0] : 0, data.position != null ? data.position[1] : 0, false);
+		jsonName = data.name;
+		controlID = cast data.id;
 
-        var tex:String = data.texture != null ? data.texture : data.graphic;
-        var subTex:String = null;
-        if (data.subgraphic != null) {
-            subTex = data.subgraphic.texture != null ? data.subgraphic.texture : data.subgraphic;
-            if (data.subgraphic.position != null) {
-                subOffsetX = data.subgraphic.position[0];
-                subOffsetY = data.subgraphic.position[1];
-            }
-            if (data.subgraphic.scale != null) {
-                subScale = data.subgraphic.scale;
-            }
-        }
+		var tex:String = data.texture != null ? data.texture : data.graphic;
+		var subTex:String = null;
+		if (data.subgraphic != null) {
+			var subData:SubGraphicDef = cast data.subgraphic;
+			if (Std.isOfType(data.subgraphic, String)) {
+				subTex = cast data.subgraphic;
+			} else {
+				subTex = subData.texture;
+				if (subData.position != null) {
+					subOffsetX = subData.position[0];
+					subOffsetY = subData.position[1];
+				}
+				if (subData.scale != null) {
+					subScale = subData.scale;
+				}
+			}
+		}
 
-        loadElementGraphics(tex, subTex, data.spritesheet, Config.BUTTON_PATH, data.color, data.scale != null ? data.scale : 1.0);
-    }
+		var scale:Float = data.scale != null ? cast data.scale : 1.0;
+		loadElementGraphics(tex, subTex, data.spritesheet, [Config.BUTTON_PATH, Config.MODDED_BUTTON_PATH], data.color, scale);
+	}
 
-    override public function updateInputs() {
-        if (disabled) return;
-        super.updateInputs();
+	override public function updateInputs() {
+		if (disabled)
+			return;
+		super.updateInputs();
 
-        var isHit = false;
-        if (checkOverlap(this)) {
-            isHit = true;
-        }
+		var isHit = checkOverlap(this);
 
-        if (isHit) activeIDs.push(controlID);
-        applyBrightness(activeIDs.length > 0);
-    }
+		if (isHit)
+			activeIDs.push(controlID);
+		applyBrightness(activeIDs.length > 0);
+	}
 }
