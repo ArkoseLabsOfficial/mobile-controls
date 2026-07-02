@@ -4,6 +4,7 @@ typedef SubGraphicDef = {
 	@:optional var texture:String;
 	@:optional var position:Array<Float>;
 	@:optional var scale:Float;
+	@:optional var color:String;
 }
 
 typedef ControlDef = {
@@ -12,15 +13,12 @@ typedef ControlDef = {
 	@:optional var position:Array<Float>;
 	@:optional var scale:Dynamic;
 	@:optional var texture:String;
-	@:optional var graphic:String;
 	@:optional var subgraphic:Dynamic;
 	@:optional var spritesheet:String;
 	@:optional var color:String;
 	@:optional var showbounds:Bool;
 	@:optional var offset:Array<Array<Float>>;
-	@:optional var clickposition:Array<Array<Float>>;
 	@:optional var hitbox:Array<Array<Int>>;
-	@:optional var clickbound:Array<Array<Int>>;
 	@:optional var radius:Float;
 	@:optional var border:Array<Int>;
 	@:optional var showborder:Bool;

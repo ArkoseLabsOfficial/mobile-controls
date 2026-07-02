@@ -8,14 +8,18 @@ class DPad extends InputHandler {
 		jsonName = data.name;
 		controlIDs = cast data.id;
 
-		var tex:String = data.texture != null ? data.texture : data.graphic;
+		var tex:String = data.texture;
 		var subTex:String = null;
+		var subColor:String = null;
 		if (data.subgraphic != null) {
 			var subData:SubGraphicDef = cast data.subgraphic;
 			if (Std.isOfType(data.subgraphic, String)) {
 				subTex = cast data.subgraphic;
 			} else {
 				subTex = subData.texture;
+				if (subData.color != null)
+					subColor = subData.color;
+
 				if (subData.position != null) {
 					subOffsetX = subData.position[0];
 					subOffsetY = subData.position[1];
@@ -27,15 +31,15 @@ class DPad extends InputHandler {
 		}
 
 		var scale:Float = data.scale != null ? cast data.scale : 1.0;
-		loadElementGraphics(tex, subTex, data.spritesheet, [Config.DPAD_PATH, Config.MODDED_DPAD_PATH], data.color, scale);
+		loadElementGraphics(tex, subTex, data.spritesheet, [Config.DPAD_PATH, Config.MODDED_DPAD_PATH], data.color, scale, subColor);
 
 		var bW = baseGraphic.scrollRect != null ? baseGraphic.scrollRect.width : baseGraphic.bitmapData.width;
 		var bH = baseGraphic.scrollRect != null ? baseGraphic.scrollRect.height : baseGraphic.bitmapData.height;
 		var relMidX = (bW * baseScale) / 2;
 		var relMidY = (bH * baseScale) / 2;
 
-		var offsets = data.offset != null ? data.offset : data.clickposition;
-		var hitboxesD = data.hitbox != null ? data.hitbox : data.clickbound;
+		var offsets = data.offset;
+		var hitboxesD = data.hitbox;
 
 		if (offsets != null && hitboxesD != null) {
 			for (i in 0...controlIDs.length) {

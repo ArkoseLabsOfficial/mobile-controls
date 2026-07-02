@@ -12,8 +12,9 @@ class Button extends InputHandler {
 
 		controlID = cast data.id;
 		var scale:Float = data.scale != null ? cast data.scale : 1.0;
-		var tex:String = data.texture != null ? data.texture : data.graphic;
+		var tex:String = data.texture;
 		var subTex:String = null;
+		var subColor:String = null;
 
 		if (data.subgraphic != null) {
 			var subData:SubGraphicDef = cast data.subgraphic;
@@ -21,6 +22,9 @@ class Button extends InputHandler {
 				subTex = cast data.subgraphic;
 			} else {
 				subTex = subData.texture;
+				if (subData.color != null)
+					subColor = subData.color;
+
 				if (subData.position != null) {
 					subOffsetX = subData.position[0];
 					subOffsetY = subData.position[1];
@@ -30,7 +34,7 @@ class Button extends InputHandler {
 			}
 		}
 
-		loadElementGraphics(tex, subTex, data.spritesheet, [Config.BUTTON_PATH, Config.MODDED_BUTTON_PATH], data.color, scale);
+		loadElementGraphics(tex, subTex, data.spritesheet, [Config.BUTTON_PATH, Config.MODDED_BUTTON_PATH], data.color, scale, subColor);
 	}
 
 	override public function updateInputs() {

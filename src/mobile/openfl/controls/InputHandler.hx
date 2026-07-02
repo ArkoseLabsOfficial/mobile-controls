@@ -148,6 +148,7 @@ class InputHandler extends Sprite {
 	public var baseScale:Float = 1.0;
 
 	private var baseColor:ColorTransform;
+	private var subColor:ColorTransform;
 
 	public var currentPointerID:Int = -1;
 	public var onButtonDown:ControlSignal = new ControlSignal();
@@ -168,9 +169,35 @@ class InputHandler extends Sprite {
 		addChild(subGraphic);
 	}
 
-	public function loadElementGraphics(gName:String, subName:String, sheet:String, paths:Array<String>, colorHex:String, scaleVal:Float) {
+	private function parseColorTransform(hexStr:String):ColorTransform {
+		if (hexStr == null || hexStr == "")
+			return new ColorTransform();
+
+		var hex = hexStr;
+		if (StringTools.startsWith(hex, "#")) {
+			hex = "0x" + hex.substring(1);
+		} else if (!StringTools.startsWith(hex, "0x")) {
+			hex = "0x" + hex;
+		}
+
+		var colInt = Std.parseInt(hex);
+		if (colInt != null) {
+			var r = ((colInt >> 16) & 0xFF) / 255.0;
+			var g = ((colInt >> 8) & 0xFF) / 255.0;
+			var b = (colInt & 0xFF) / 255.0;
+			return new ColorTransform(r, g, b);
+		}
+
+		return new ColorTransform();
+	}
+
+	public function loadElementGraphics(gName:String, subName:String, sheet:String, paths:Array<String>, colorHex:String, scaleVal:Float, ?subColorHex:String) {
 		this.baseScale = scaleVal;
 		jsonName = gName;
+		if (colorHex != null && colorHex != "" && !colorHex.startsWith("#"))
+			colorHex = "#" + colorHex;
+		if (subColorHex != null && subColorHex != "" && !subColorHex.startsWith("#"))
+			subColorHex = "#" + subColorHex;
 
 		loadBitmap(baseGraphic, gName, sheet, paths);
 		if (subName != null && subName != "") {
@@ -178,17 +205,12 @@ class InputHandler extends Sprite {
 			centerSubGraphic();
 		}
 
-		if (colorHex != null && colorHex != "") {
-			var colInt = Std.parseInt(colorHex);
-			var r = ((colInt >> 16) & 0xFF) / 255.0;
-			var g = ((colInt >> 8) & 0xFF) / 255.0;
-			var b = (colInt & 0xFF) / 255.0;
-			baseColor = new ColorTransform(r, g, b);
-			baseGraphic.transform.colorTransform = baseColor;
-			subGraphic.transform.colorTransform = baseColor;
-		} else {
-			baseColor = new ColorTransform();
-		}
+		baseColor = parseColorTransform(colorHex);
+		subColor = parseColorTransform(subColorHex);
+
+		baseGraphic.transform.colorTransform = baseColor;
+		if (subColorHex != null && subColorHex != "")
+			subGraphic.transform.colorTransform = subColor;
 
 		baseGraphic.scaleX = baseGraphic.scaleY = baseScale;
 		subGraphic.scaleX = subGraphic.scaleY = baseScale * subScale;
@@ -268,10 +290,14 @@ class InputHandler extends Sprite {
 	public function applyBrightness(isPressed:Bool) {
 		if (disableBright)
 			return;
+
 		var mult = isPressed ? 0.7 : 1.0;
-		var ct = new ColorTransform(baseColor.redMultiplier * mult, baseColor.greenMultiplier * mult, baseColor.blueMultiplier * mult);
-		baseGraphic.transform.colorTransform = ct;
-		subGraphic.transform.colorTransform = ct;
+
+		baseGraphic.transform.colorTransform = new ColorTransform(baseColor.redMultiplier * mult, baseColor.greenMultiplier * mult,
+			baseColor.blueMultiplier * mult);
+
+		subGraphic.transform.colorTransform = new ColorTransform(subColor.redMultiplier * mult, subColor.greenMultiplier * mult,
+			subColor.blueMultiplier * mult);
 	}
 
 	public function checkOverlap(rect:Sprite):Bool {

@@ -22,6 +22,9 @@ class InputHandler extends FlxSpriteGroup {
 
 	public var hitboxes:Array<FlxSprite> = [];
 
+	public var baseColor:FlxColor = FlxColor.WHITE;
+	public var subColor:FlxColor = FlxColor.WHITE;
+
 	public var currentPointerID:Int = -1;
 	public var onButtonDown:FlxTypedSignal<(InputHandler, String) -> Void> = new FlxTypedSignal<(InputHandler, String) -> Void>();
 	public var onButtonUp:FlxTypedSignal<(InputHandler, String) -> Void> = new FlxTypedSignal<(InputHandler, String) -> Void>();
@@ -49,8 +52,13 @@ class InputHandler extends FlxSpriteGroup {
 		#end
 	}
 
-	public function loadElementGraphics(graphicName:String, subName:String, sheetName:String, basePaths:Array<String>, colorHex:String, scaleVal:Float) {
+	public function loadElementGraphics(graphicName:String, subName:String, sheetName:String, basePaths:Array<String>, colorHex:String, scaleVal:Float,
+			?subColorHex:String) {
 		jsonName = graphicName;
+		if (colorHex != null && colorHex != "" && !colorHex.startsWith("#"))
+			colorHex = "#" + colorHex;
+		if (subColorHex != null && subColorHex != "" && !subColorHex.startsWith("#"))
+			subColorHex = "#" + subColorHex;
 
 		var loadFrames = function(target:FlxSprite, gName:String, sName:String, sPath:Array<String>) {
 			var pngPath = sPath[1] + sName + ".png";
@@ -109,10 +117,16 @@ class InputHandler extends FlxSpriteGroup {
 		centerSubGraphic();
 
 		if (colorHex != null && colorHex != "") {
-			var col:FlxColor = FlxColor.fromString(colorHex);
-			baseGraphic.color = col;
-			subGraphic.color = col;
+			baseColor = FlxColor.fromString(colorHex);
+		} else {
+			baseColor = FlxColor.WHITE;
 		}
+		baseGraphic.color = baseColor;
+
+		if (subColorHex != null && subColorHex != "") {
+			subColor = FlxColor.fromString(subColorHex);
+		}
+		subGraphic.color = subColor;
 	}
 
 	public function centerSubGraphic() {
@@ -265,10 +279,13 @@ class InputHandler extends FlxSpriteGroup {
 	public function applyBrightness(isPressed:Bool) {
 		if (disableBright)
 			return;
-		var targetColor = isPressed ? 0xFFAAAAAA : FlxColor.WHITE;
-		baseGraphic.color = targetColor;
+
+		var mult:Float = isPressed ? 0.7 : 1.0;
+
+		baseGraphic.color = FlxColor.fromRGBFloat(baseColor.redFloat * mult, baseColor.greenFloat * mult, baseColor.blueFloat * mult, baseColor.alphaFloat);
+
 		if (subGraphic.visible)
-			subGraphic.color = targetColor;
+			subGraphic.color = FlxColor.fromRGBFloat(subColor.redFloat * mult, subColor.greenFloat * mult, subColor.blueFloat * mult, subColor.alphaFloat);
 	}
 }
 #end

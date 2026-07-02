@@ -16,14 +16,18 @@ class Joystick extends InputHandler {
 		var scale:Float = data.scale != null ? cast data.scale : 1.0;
 		maxRadius = (data.radius != null ? data.radius : maxRadius) * scale;
 
-		var tex:String = data.texture != null ? data.texture : data.graphic;
+		var tex:String = data.texture;
 		var subTex:String = null;
+		var subColor:String = null;
 		if (data.subgraphic != null) {
 			var subData:SubGraphicDef = cast data.subgraphic;
 			if (Std.isOfType(data.subgraphic, String)) {
 				subTex = cast data.subgraphic;
 			} else {
 				subTex = subData.texture;
+				if (subData.color != null)
+					subColor = subData.color;
+
 				if (subData.position != null) {
 					subOffsetX = subData.position[0];
 					subOffsetY = subData.position[1];
@@ -34,7 +38,7 @@ class Joystick extends InputHandler {
 			}
 		}
 
-		loadElementGraphics(tex, subTex, data.spritesheet, [Config.JOYSTICK_PATH, Config.MODDED_JOYSTICK_PATH], data.color, scale);
+		loadElementGraphics(tex, subTex, data.spritesheet, [Config.JOYSTICK_PATH, Config.MODDED_JOYSTICK_PATH], data.color, scale, subColor);
 
 		var bW = baseGraphic.scrollRect != null ? baseGraphic.scrollRect.width : baseGraphic.bitmapData.width;
 		var bH = baseGraphic.scrollRect != null ? baseGraphic.scrollRect.height : baseGraphic.bitmapData.height;
@@ -59,8 +63,8 @@ class Joystick extends InputHandler {
 			touchZone.alpha = 0;
 		addChildAt(touchZone, 0);
 
-		var offsets = data.offset != null ? data.offset : data.clickposition;
-		var hitboxesD = data.hitbox != null ? data.hitbox : data.clickbound;
+		var offsets = data.offset;
+		var hitboxesD = data.hitbox;
 
 		if (offsets != null && hitboxesD != null) {
 			for (i in 0...controlIDs.length) {
