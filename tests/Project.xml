@@ -3,7 +3,6 @@
     <app title="MobileControls Test" file="MobileControlsTest" main="Main" version="1.0.0" company="Dev" />
     <window width="1280" height="720" fps="60" background="#111111" hardware="true" vsync="false" />
 
-    <haxelib name="flixel" />
     <haxelib name="openfl" />
 
     <source name="../src" /> 

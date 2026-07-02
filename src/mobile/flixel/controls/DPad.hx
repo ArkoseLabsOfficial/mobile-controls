@@ -4,70 +4,32 @@ package mobile.flixel.controls;
 class DPad extends InputHandler {
 	public var controlIDs:Array<String> = [];
 
-	public function new(data:ControlDef) {
-		var posX:Float = data.position != null ? data.position[0] : 0;
-		var posY:Float = data.position != null ? data.position[1] : 0;
-		super(posX, posY, data.showbounds == true);
-
-		controlIDs = cast data.id;
-		var scale:Float = data.scale != null ? cast data.scale : 1.0;
-		var tex:String = data.texture;
-		var subTex:String = null;
-		var subColor:String = null;
-
-		if (data.subgraphic != null) {
-			var subData:SubGraphicDef = cast data.subgraphic;
-			if (Std.isOfType(data.subgraphic, String)) {
-				subTex = cast data.subgraphic;
-			} else {
-				subTex = subData.texture;
-				if (subData.color != null)
-					subColor = subData.color;
-
-				if (subData.position != null) {
-					subOffsetX = subData.position[0];
-					subOffsetY = subData.position[1];
-				}
-				if (subData.scale != null)
-					subScale = subData.scale;
-			}
-		}
-
-		loadElementGraphics(tex, subTex, data.spritesheet, [Config.DPAD_PATH, Config.MODDED_DPAD_PATH], data.color, scale, subColor);
-
-		var relMidX = baseGraphic.width / 2;
-		var relMidY = baseGraphic.height / 2;
-		var offsets = data.offset;
-		var hitboxesD = data.hitbox;
-
-		if (offsets != null && hitboxesD != null) {
-			for (i in 0...controlIDs.length) {
-				var cPos:Array<Float> = offsets[i];
-				var cBnd:Array<Int> = hitboxesD[i];
-
-				var relBoundX = relMidX + cPos[0] - (cBnd[0] / 2);
-				var relBoundY = relMidY + cPos[1] - (cBnd[1] / 2);
-
-				createBoundHitbox(relBoundX, relBoundY, cBnd[0], cBnd[1]);
-			}
-		}
+	public function new(data:Dynamic) {
+		super(data.position != null ? data.position[0] : 0, data.position != null ? data.position[1] : 0, data.showbounds == true);
 		jsonName = data.name;
+		controlIDs = cast data.id;
+		var subData = parseSubGraphic(data);
+		loadElementGraphics(data.texture, subData.subTex, data.spritesheet, [Config.DPAD_PATH, Config.MODDED_DPAD_PATH], data.color,
+			data.scale != null ? cast data.scale : 1.0, subData.subColor);
+
+		if (data.offset != null && data.hitbox != null) {
+			for (i in 0...controlIDs.length) {
+				createBoundHitbox((baseGraphic.width / 2) + data.offset[i][0] - (data.hitbox[i][0] / 2),
+					(baseGraphic.height / 2) + data.offset[i][1] - (data.hitbox[i][1] / 2), data.hitbox[i][0], data.hitbox[i][1]);
+			}
+		}
 	}
 
 	override public function updateInputs() {
 		var anyPressed = false;
 		for (i in 0...hitboxes.length) {
-			var box = hitboxes[i];
-			var isPressed = checkOverlap(box);
-
+			var isPressed = checkOverlap(hitboxes[i]);
 			if (isPressed) {
 				activeIDs.push(controlIDs[i]);
 				anyPressed = true;
 			}
-
-			updateBoundBrightness(box, isPressed);
+			updateBoundBrightness(hitboxes[i], isPressed);
 		}
-
 		applyBrightness(anyPressed);
 	}
 }

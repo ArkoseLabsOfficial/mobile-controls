@@ -9,51 +9,26 @@ class Joystick extends InputHandler {
 
 	private var currentTouchID:Int = -999;
 
-	public function new(data:ControlDef) {
+	public function new(data:Dynamic) {
 		super(data.position != null ? data.position[0] : 0, data.position != null ? data.position[1] : 0, data.showbounds == true);
 		jsonName = data.name;
 		controlIDs = cast data.id;
 		var scale:Float = data.scale != null ? cast data.scale : 1.0;
 		maxRadius = (data.radius != null ? data.radius : maxRadius) * scale;
-
-		var tex:String = data.texture;
-		var subTex:String = null;
-		var subColor:String = null;
-		if (data.subgraphic != null) {
-			var subData:SubGraphicDef = cast data.subgraphic;
-			if (Std.isOfType(data.subgraphic, String)) {
-				subTex = cast data.subgraphic;
-			} else {
-				subTex = subData.texture;
-				if (subData.color != null)
-					subColor = subData.color;
-
-				if (subData.position != null) {
-					subOffsetX = subData.position[0];
-					subOffsetY = subData.position[1];
-				}
-				if (subData.scale != null) {
-					subScale = subData.scale;
-				}
-			}
-		}
-
-		loadElementGraphics(tex, subTex, data.spritesheet, [Config.JOYSTICK_PATH, Config.MODDED_JOYSTICK_PATH], data.color, scale, subColor);
+		var subData = parseSubGraphic(data);
+		loadElementGraphics(data.texture, subData.subTex, data.spritesheet, [Config.JOYSTICK_PATH, Config.MODDED_JOYSTICK_PATH], data.color, scale,
+			subData.subColor);
 
 		var bW = baseGraphic.scrollRect != null ? baseGraphic.scrollRect.width : baseGraphic.bitmapData.width;
 		var bH = baseGraphic.scrollRect != null ? baseGraphic.scrollRect.height : baseGraphic.bitmapData.height;
-		var relMidX = (bW * baseScale) / 2;
-		var relMidY = (bH * baseScale) / 2;
-
 		touchZone = new Sprite();
 		if (data.border != null && data.border.length >= 2) {
-			var zW = data.border[0] * scale;
-			var zH = data.border[1] * scale;
+			var zW = data.border[0] * scale, zH = data.border[1] * scale;
 			touchZone.graphics.beginFill(0xFFFFFF, 0.15);
 			touchZone.graphics.drawRect(0, 0, zW, zH);
 			touchZone.graphics.endFill();
-			touchZone.x = relMidX - (zW / 2);
-			touchZone.y = relMidY - (zH / 2);
+			touchZone.x = ((bW * baseScale) / 2) - (zW / 2);
+			touchZone.y = ((bH * baseScale) / 2) - (zH / 2);
 		} else {
 			touchZone.graphics.beginFill(0xFFFFFF, 0.15);
 			touchZone.graphics.drawRect(0, 0, bW * scale, bH * scale);
@@ -63,17 +38,15 @@ class Joystick extends InputHandler {
 			touchZone.alpha = 0;
 		addChildAt(touchZone, 0);
 
-		var offsets = data.offset;
-		var hitboxesD = data.hitbox;
-
-		if (offsets != null && hitboxesD != null) {
-			for (i in 0...controlIDs.length) {
-				var cPos:Array<Float> = offsets[i];
-				var cBnd:Array<Int> = hitboxesD[i];
-				var relBoundX = relMidX + (cPos[0] * scale) - ((cBnd[0] * scale) / 2);
-				var relBoundY = relMidY + (cPos[1] * scale) - ((cBnd[1] * scale) / 2);
-				createBoundHitbox(relBoundX, relBoundY, cBnd[0] * scale, cBnd[1] * scale);
-			}
+		if (data.offset != null && data.hitbox != null) {
+			for (i in 0...controlIDs.length)
+				createBoundHitbox(((bW * baseScale) / 2)
+					+ (data.offset[i][0] * scale)
+					- ((data.hitbox[i][0] * scale) / 2),
+					((bH * baseScale) / 2)
+					+ (data.offset[i][1] * scale)
+					- ((data.hitbox[i][1] * scale) / 2), data.hitbox[i][0] * scale,
+					data.hitbox[i][1] * scale);
 		}
 	}
 
@@ -81,98 +54,79 @@ class Joystick extends InputHandler {
 		if (disabled)
 			return;
 		super.updateInputs();
-
 		var bW = baseGraphic.scrollRect != null ? baseGraphic.scrollRect.width : baseGraphic.bitmapData.width;
 		var bH = baseGraphic.scrollRect != null ? baseGraphic.scrollRect.height : baseGraphic.bitmapData.height;
-
 		var globalMidX = this.x + (((bW * baseScale) / 2) * this.scaleX);
 		var globalMidY = this.y + (((bH * baseScale) / 2) * this.scaleY);
+		var isTouching = false,
+			touchX = globalMidX,
+			touchY = globalMidY,
+			blockedByDeadZone = false;
 
-		var isTouching = false;
-		var touchX = globalMidX;
-		var touchY = globalMidY;
-
-		var blockedByDeadZone = false;
-		for (p in InputHandler.activePointers) {
+		for (p in InputHandler.activePointers)
 			if (p.isDown) {
-				for (dz in deadZones) {
-					if (dz != null && dz.hitTestPoint(p.x, p.y, true)) {
+				for (dz in deadZones)
+					if (dz != null && dz.hitTestPoint(p.x, p.y, false)) {
 						blockedByDeadZone = true;
 						break;
 					}
-				}
 				if (blockedByDeadZone)
 					break;
 			}
-		}
 
-		if (currentTouchID == -999 && !blockedByDeadZone) {
-			for (p in InputHandler.activePointers) {
+		if (currentTouchID == -999 && !blockedByDeadZone)
+			for (p in InputHandler.activePointers)
 				if (p.isDown && touchZone.hitTestPoint(p.x, p.y, true)) {
 					currentTouchID = p.id;
 					break;
 				}
-			}
-		}
-
 		if (currentTouchID != -999 && !blockedByDeadZone) {
 			var p = InputHandler.activePointers.get(currentTouchID);
 			if (p != null && p.isDown) {
 				isTouching = true;
 				touchX = p.x;
 				touchY = p.y;
-			} else {
+			} else
 				currentTouchID = -999;
-			}
 		}
-
 		if (blockedByDeadZone) {
 			isTouching = false;
 			currentTouchID = -999;
 		}
 
 		if (isTouching) {
-			var dx = touchX - globalMidX;
-			var dy = touchY - globalMidY;
-			var dist = Math.sqrt(dx * dx + dy * dy);
-
-			var globalMaxRadius = maxRadius * this.scaleX;
-
-			if (dist > globalMaxRadius) {
-				dx = (dx / dist) * globalMaxRadius;
-				dy = (dy / dist) * globalMaxRadius;
+			var dx = touchX - globalMidX,
+				dy = touchY - globalMidY,
+				dist = Math.sqrt(dx * dx + dy * dy),
+				gRadius = maxRadius * this.scaleX;
+			if (dist > gRadius) {
+				dx = (dx / dist) * gRadius;
+				dy = (dy / dist) * gRadius;
 			}
-
-			var localDx = dx / this.scaleX;
-			var localDy = dy / this.scaleY;
-
-			var sW = subGraphic.scrollRect != null ? subGraphic.scrollRect.width : subGraphic.bitmapData.width;
-			var sH = subGraphic.scrollRect != null ? subGraphic.scrollRect.height : subGraphic.bitmapData.height;
-
-			subGraphic.x = ((bW * baseScale) / 2) + localDx - ((sW * baseScale * subScale) / 2) + subOffsetX;
-			subGraphic.y = ((bH * baseScale) / 2) + localDy - ((sH * baseScale * subScale) / 2) + subOffsetY;
+			subGraphic.x = ((bW * baseScale) / 2)
+				+ (dx / this.scaleX)
+				- (((subGraphic.scrollRect != null ? subGraphic.scrollRect.width : subGraphic.bitmapData.width) * baseScale * subScale) / 2)
+				+ subOffsetX;
+			subGraphic.y = ((bH * baseScale) / 2)
+				+ (dy / this.scaleY)
+				- (((subGraphic.scrollRect != null ? subGraphic.scrollRect.height : subGraphic.bitmapData.height) * baseScale * subScale) / 2)
+				+ subOffsetY;
 
 			var anyPressed = false;
 			for (i in 0...hitboxes.length) {
-				var box = hitboxes[i];
-				var isPressed = false;
-
-				if (box.hitTestPoint(touchX, touchY, true)) {
-					isPressed = true;
-				}
-
+				var isPressed = hitboxes[i].hitTestPoint(touchX, touchY, true);
 				if (isPressed) {
 					activeIDs.push(controlIDs[i]);
 					anyPressed = true;
 				}
-				updateBoundBrightness(box, isPressed);
+				updateBoundBrightness(hitboxes[i], isPressed);
 			}
 			applyBrightness(anyPressed);
 		} else {
 			centerSubGraphic();
 			applyBrightness(false);
-			for (box in hitboxes)
-				updateBoundBrightness(box, false);
+			for (b in hitboxes)
+				updateBoundBrightness(b, false);
 		}
 	}
 

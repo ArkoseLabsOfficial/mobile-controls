@@ -3,9 +3,7 @@ package mobile.openfl.controls;
 class MobileControls extends Sprite {
 	public var designWidth:Float = 1280;
 	public var designHeight:Float = 720;
-
 	public var controls:Array<InputHandler> = [];
-
 	public var buttons:Array<Button> = [];
 	public var dpads:Array<DPad> = [];
 	public var joysticks:Array<Joystick> = [];
@@ -15,142 +13,104 @@ class MobileControls extends Sprite {
 		super();
 		this.designWidth = designW;
 		this.designHeight = designH;
-
 		addEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
 	}
 
 	private function onAddedToStage(e:Event) {
 		InputHandler.initInputs(stage);
-
 		stage.addEventListener(Event.RESIZE, onResize);
 		stage.addEventListener(Event.DEACTIVATE, onFocusLost);
 		stage.addEventListener(Event.MOUSE_LEAVE, onFocusLost);
-
 		addEventListener(Event.ENTER_FRAME, onEnterFrame);
 		onResize(null);
 	}
 
-	private function onFocusLost(e:Event) {
+	private function onFocusLost(e:Event)
 		resetAllInputs();
-	}
 
-	public function getHitboxFromName(name:String) {
-		for (btn in hitboxes) {
-			if (btn != null && btn.jsonName == name)
-				return btn;
-		}
+	public function getHitboxFromName(n:String) {
+		for (b in hitboxes)
+			if (b != null && b.jsonName == n)
+				return b;
 		return null;
 	}
 
-	public function getDPadFromName(name:String) {
-		for (btn in dpads) {
-			if (btn != null && btn.jsonName == name)
-				return btn;
-		}
+	public function getDPadFromName(n:String) {
+		for (b in dpads)
+			if (b != null && b.jsonName == n)
+				return b;
 		return null;
 	}
 
-	public function getJoyStickFromName(name:String) {
-		for (btn in joysticks) {
-			if (btn != null && btn.jsonName == name)
-				return btn;
-		}
+	public function getJoyStickFromName(n:String) {
+		for (b in joysticks)
+			if (b != null && b.jsonName == n)
+				return b;
 		return null;
 	}
 
-	public function getButtonFromName(name:String) {
-		for (btn in buttons) {
-			if (btn != null && btn.jsonName == name)
-				return btn;
-		}
+	public function getButtonFromName(n:String) {
+		for (b in buttons)
+			if (b != null && b.jsonName == n)
+				return b;
 		return null;
+	}
+
+	private function loadJson(n:String, mod:String, reg:String):ControlsJsonDef {
+		var p = FileSystem.exists(mod + n + ".json") ? mod + n + ".json" : reg + n + ".json";
+		var r = File.getContent(p);
+		return r != null ? Json.parse(r) : null;
 	}
 
 	public function addButton(name:String) {
 		if (buttons.length > 0)
 			removeButton();
-
-		var path = Config.MODDED_BUTTON_JSON + name + ".json";
-		if (!FileSystem.exists(path))
-			path = Config.BUTTON_JSON + name + ".json";
-
-		var rawContent = File.getContent(path);
-		if (rawContent == null)
-			return;
-		var parsed:ControlsJsonDef = Json.parse(rawContent);
-		if (parsed.buttons != null) {
-			for (data in parsed.buttons) {
-				var btn = new Button(data);
-				addControl(btn);
-				buttons.push(btn);
+		var p = loadJson(name, Config.MODDED_BUTTON_JSON, Config.BUTTON_JSON);
+		if (p != null && p.buttons != null)
+			for (d in p.buttons) {
+				var b = new Button(d);
+				addControl(b);
+				buttons.push(b);
 			}
-		}
 		onResize(null);
 	}
 
 	public function addDPad(name:String) {
 		if (dpads.length > 0)
 			removeDPad();
-
-		var path = Config.MODDED_DPAD_JSON + name + ".json";
-		if (!FileSystem.exists(path))
-			path = Config.DPAD_JSON + name + ".json";
-
-		var rawContent = File.getContent(path);
-		if (rawContent == null)
-			return;
-		var parsed:ControlsJsonDef = Json.parse(rawContent);
-		if (parsed.dpads != null) {
-			for (data in parsed.dpads) {
-				var dpad = new DPad(data);
-				addControl(dpad);
-				dpads.push(dpad);
+		var p = loadJson(name, Config.MODDED_DPAD_JSON, Config.DPAD_JSON);
+		if (p != null && p.dpads != null)
+			for (d in p.dpads) {
+				var b = new DPad(d);
+				addControl(b);
+				dpads.push(b);
 			}
-		}
 		onResize(null);
 	}
 
 	public function addJoyStick(name:String) {
 		if (joysticks.length > 0)
 			removeJoyStick();
-
-		var path = Config.MODDED_JOYSTICK_JSON + name + ".json";
-		if (!FileSystem.exists(path))
-			path = Config.JOYSTICK_JSON + name + ".json";
-
-		var rawContent = File.getContent(path);
-		if (rawContent == null)
-			return;
-		var parsed:ControlsJsonDef = Json.parse(rawContent);
-		if (parsed.joysticks != null) {
-			for (data in parsed.joysticks) {
-				var joy = new Joystick(data);
-				addControl(joy);
-				joysticks.push(joy);
+		var p = loadJson(name, Config.MODDED_JOYSTICK_JSON, Config.JOYSTICK_JSON);
+		if (p != null && p.joysticks != null)
+			for (d in p.joysticks) {
+				var b = new Joystick(d);
+				addControl(b);
+				joysticks.push(b);
 			}
-		}
 		onResize(null);
 	}
 
 	public function addHitbox(name:String) {
 		if (hitboxes.length > 0)
 			removeHitbox();
-
-		var path = Config.MODDED_HITBOX_JSON + name + ".json";
-		if (!FileSystem.exists(path))
-			path = Config.HITBOX_JSON + name + ".json";
-
-		var rawContent = File.getContent(Config.HITBOX_JSON + name + ".json");
-		if (rawContent == null)
-			return;
-		var parsed:ControlsJsonDef = Json.parse(rawContent);
-		if (parsed.hitboxes != null) {
-			for (data in parsed.hitboxes) {
-				var box = new Hitbox(data);
-				addControl(box);
-				hitboxes.push(box);
+		var p = loadJson(name, Config.MODDED_HITBOX_JSON, Config.HITBOX_JSON);
+		if (p != null && p.hitboxes != null)
+			for (d in p.hitboxes) {
+				var b = new Hitbox(d);
+				addControl(b);
+				hitboxes.push(b);
 			}
-		}
 		onResize(null);
 	}
 
@@ -160,37 +120,37 @@ class MobileControls extends Sprite {
 	}
 
 	public function removeButton() {
-		for (btn in buttons) {
-			controls.remove(btn);
-			if (this.contains(btn))
-				removeChild(btn);
+		for (b in buttons) {
+			controls.remove(b);
+			if (contains(b))
+				removeChild(b);
 		}
 		buttons = [];
 	}
 
 	public function removeDPad() {
-		for (dpad in dpads) {
-			controls.remove(dpad);
-			if (this.contains(dpad))
-				removeChild(dpad);
+		for (b in dpads) {
+			controls.remove(b);
+			if (contains(b))
+				removeChild(b);
 		}
 		dpads = [];
 	}
 
 	public function removeJoyStick() {
-		for (joy in joysticks) {
-			controls.remove(joy);
-			if (this.contains(joy))
-				removeChild(joy);
+		for (b in joysticks) {
+			controls.remove(b);
+			if (contains(b))
+				removeChild(b);
 		}
 		joysticks = [];
 	}
 
 	public function removeHitbox() {
-		for (box in hitboxes) {
-			controls.remove(box);
-			if (this.contains(box))
-				removeChild(box);
+		for (b in hitboxes) {
+			controls.remove(b);
+			if (contains(b))
+				removeChild(b);
 		}
 		hitboxes = [];
 	}
@@ -207,7 +167,6 @@ class MobileControls extends Sprite {
 		clearControls();
 		removeEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
 		removeEventListener(Event.ENTER_FRAME, onEnterFrame);
-
 		if (stage != null) {
 			stage.removeEventListener(Event.RESIZE, onResize);
 			stage.removeEventListener(Event.DEACTIVATE, onFocusLost);
@@ -218,16 +177,13 @@ class MobileControls extends Sprite {
 	private function onResize(e:Event) {
 		if (stage == null)
 			return;
-		var screenW = stage.stageWidth;
-		var screenH = stage.stageHeight;
-		var scaleRatio = Math.min(screenW / designWidth, screenH / designHeight);
-		var offsetX = (screenW - (designWidth * scaleRatio)) / 2;
-		var offsetY = (screenH - (designHeight * scaleRatio)) / 2;
-
+		var r = Math.min(stage.stageWidth / designWidth, stage.stageHeight / designHeight);
+		var oX = (stage.stageWidth - (designWidth * r)) / 2;
+		var oY = (stage.stageHeight - (designHeight * r)) / 2;
 		for (c in controls) {
-			c.scaleX = c.scaleY = scaleRatio;
-			c.x = offsetX + (c.jsonX * scaleRatio);
-			c.y = offsetY + (c.jsonY * scaleRatio);
+			c.scaleX = c.scaleY = r;
+			c.x = oX + (c.jsonX * r);
+			c.y = oY + (c.jsonY * r);
 		}
 	}
 
@@ -240,27 +196,23 @@ class MobileControls extends Sprite {
 	}
 
 	public function checkState(id:String, state:String = "pressed"):Bool {
-		var isAny:Bool = (id == "any" || id == null);
-
+		var isAny = (id == "any" || id == null);
 		for (c in controls) {
 			if (c == null || c.disabled)
 				continue;
-
 			if (isAny) {
 				switch (state.toLowerCase()) {
 					case "pressed":
 						if (c.activeIDs.length > 0)
 							return true;
 					case "justpressed":
-						for (active in c.activeIDs) {
-							if (!c.lastActiveIDs.contains(active))
+						for (a in c.activeIDs)
+							if (!c.lastActiveIDs.contains(a))
 								return true;
-						}
 					case "justreleased":
-						for (last in c.lastActiveIDs) {
-							if (!c.activeIDs.contains(last))
+						for (l in c.lastActiveIDs)
+							if (!c.activeIDs.contains(l))
 								return true;
-						}
 					case "released":
 						if (c.activeIDs.length == 0)
 							return true;

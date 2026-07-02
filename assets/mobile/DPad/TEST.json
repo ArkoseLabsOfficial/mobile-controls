@@ -4,6 +4,7 @@
       "name": "dpad1",
       "id": ["UP", "DOWN", "LEFT", "RIGHT"],
       "texture": "dpad",
+      "spritesheet": "style-c-large",
       "offset": [[0, -125], [0, 125], [-125, 0], [125, 0]],
       "hitbox": [[150, 150], [150, 150], [150, 150], [150, 150]],
       "showbounds": false,

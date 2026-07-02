@@ -5,6 +5,7 @@
       "radius": 80,
       "id": ["UP", "DOWN", "LEFT", "RIGHT"],
       "texture": "joystick_hexagon_pad_a",
+      "spritesheet": "../../DPad/images/style-c-large",
       "offset": [[0, -150], [0, 150], [-150, 0], [150, 0]],
       "hitbox": [[400, 200], [400, 200], [200, 400], [200, 400]],
       "position": [0, 300],
